@@ -1,85 +1,146 @@
 package com.example.examen.controller;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.examen.model.User;
 import com.example.examen.repository.UserRepository;
 import com.example.examen.service.EmailService;
 import com.example.examen.service.OtpService;
 
-@RestController
-@RequestMapping("/api/auth")
+@Controller
 public class AuthController {
-	
-	@Autowired
-	private UserRepository repo;
 
-	@Autowired
-	private OtpService otpService;
+    @Autowired
+    private UserRepository repo;
 
-	@Autowired
-	private EmailService emailService;
+    @Autowired
+    private OtpService otpService;
 
-	@Autowired
-	private PasswordEncoder encoder;
-	
-	@GetMapping("/")
-	public String index(Model model) {
-		return "index";
-	}
+    @Autowired
+    private EmailService emailService;
 
-	@PostMapping("/register")
-	public String register(@RequestBody User user){
-	 user.setPassword(encoder.encode(user.getPassword()));	
-	 repo.save(user);
-	 return "Inscription OK";
-	}
+    @Autowired
+    private PasswordEncoder encoder;
 
-	@PostMapping("/login")
-	public String login(@RequestBody Map<String,String> data){
+    // ================= PAGE ACCUEIL =================
+    @GetMapping("/")
+    public String home(HttpSession session, Model model) {
 
-	 //User user = repo.findByUsername(data.get("username")).orElse(null);
-	 User user = repo.findByEmail(data.get("email")).orElse(null);
+        String username = (String) session.getAttribute("username");
 
-	 if(user==null || !encoder.matches(data.get("password"), user.getPassword())){
-	   return "Identifiants incorrects";
-	 }
+        if (username == null) {
+            return "redirect:/login";
+        }
 
-	 String otp = otpService.generateOtp();
-	 user.setOtp(otp);
-	 user.setOtpExpiration(LocalDateTime.now().plusMinutes(5));
-	 repo.save(user);
+        model.addAttribute("username", username);
+        return "home";
+    }
 
-	 emailService.sendOtp(user.getEmail(), otp);
+    // ================= INSCRIPTION =================
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";
+    }
 
-	 return "OTP envoyé";
-	}
+    @PostMapping("/register")
+    public String register(User user, Model model) {
 
-	@PostMapping("/verify-otp")
-	public String verify(@RequestBody Map<String,String> data){
+        if (repo.findByEmail(user.getEmail()).isPresent()) {
+            model.addAttribute("error", "Email déjà utilisé !");
+            return "register";
+        }
 
-	 User user = repo.findByUsername(data.get("username")).orElse(null);
+        user.setPassword(encoder.encode(user.getPassword()));
+        user.setEnabled(false);
+        user.setOtp(null);
+        repo.save(user);
 
-	 if(user.getOtp().equals(data.get("otp")) &&
-	    user.getOtpExpiration().isAfter(LocalDateTime.now())){
+        model.addAttribute("message", "Inscription réussie !");
+        return "index";
+    }
 
-	   user.setEnabled(true);
-	   user.setOtp(null);
-	   repo.save(user);
+    // ================= LOGIN =================
+    @GetMapping("/login")
+    public String loginPage() {
+        return "index";
+    }
 
-	   return "Connexion réussie";
-	 }
+    @PostMapping("/login")
+    public String login(String email, String password, Model model) {
 
-	 return "OTP invalide";
-	}
+        User user = repo.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            System.out.println("Utilisateur introuvable !");
+            return "index";
+        }
+
+        if (user == null || !encoder.matches(password, user.getPassword())) {
+            model.addAttribute("error", "Email ou mot de passe incorrect");
+            return "index";
+        }
+
+        String otp = otpService.generateOtp();
+
+        user.setOtp(otp);
+        user.setOtpExpiration(LocalDateTime.now().plusMinutes(5));
+
+        repo.save(user);
+
+        emailService.sendOtp(user.getEmail(), otp);
+
+        model.addAttribute("email", email);
+        return "verify-otp";
+    }
+
+    // ================= VERIFICATION OTP =================
+    @PostMapping("/verify-otp")
+    public String verifyOtp(@RequestParam("email") String email, 
+                            @RequestParam("otp") String otp,
+                            HttpSession session,
+                            Model model) {
+
+        User user = repo.findByEmail(email).orElse(null);
+
+        // DEBUG: Affiche les valeurs pour identifier le coupable
+        if (user != null) {
+            System.out.println("OTP saisi: " + otp);
+            System.out.println("OTP en base: " + user.getOtp());
+            System.out.println("Expiré ? " + user.getOtpExpiration().isBefore(LocalDateTime.now()));
+        }
+
+        if (user == null ||
+            user.getOtp() == null ||
+            !otp.equals(user.getOtp()) || // <-- Changé ici si vous stockez en clair
+            user.getOtpExpiration().isBefore(LocalDateTime.now())) {
+
+            model.addAttribute("error", "Code OTP invalide ou expiré !");
+            model.addAttribute("email", email);
+            return "verify-otp";
+        }
+
+        // Succès
+        user.setEnabled(true);
+        user.setOtp(null); 
+        user.setOtpExpiration(null);
+        repo.save(user);
+
+        session.setAttribute("username", user.getUsername());
+        return "redirect:/";
+    }
+
+    // ================= LOGOUT =================
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
+    }
 }

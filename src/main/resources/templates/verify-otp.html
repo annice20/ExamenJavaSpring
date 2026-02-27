@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification OTP | Mon App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+        }
+
+        .otp-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .otp-header .icon-box {
+            background: #ff9a9e;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+        }
+
+        .otp-input {
+            letter-spacing: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 50px;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .otp-input:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 0 0.25rem rgba(118, 75, 162, 0.15);
+            outline: none;
+        }
+
+        .btn-verify {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            border: none;
+            border-radius: 50px;
+            padding: 12px;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+            color: white;
+        }
+
+        .resend-text {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .resend-text a {
+            color: #764ba2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="otp-card">
+    <div class="otp-header">
+        <div class="icon-box">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <h2 class="fw-bold">Vérification</h2>
+        <p class="text-muted">Un code a été envoyé à l'adresse suivante :<br>
+           <strong th:text="${email}" style="color: #764ba2;"></strong>
+        </p>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger border-0 shadow-sm py-2 mb-3" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i> <small th:text="${error}"></small>
+    </div>
+
+    <form method="post" th:action="@{/verify-otp}">
+        <input type="hidden" name="email" th:value="${email}">
+
+        <div class="mb-3">
+            <label for="otp" class="form-label d-none">Code OTP</label>
+            <input type="text" name="otp" id="otp" 
+                   class="form-control otp-input" 
+                   placeholder="······" 
+                   maxlength="10" 
+                   required autofocus>
+        </div>
+
+        <button type="submit" class="btn btn-verify w-100">
+            Vérifier le code <i class="fas fa-check-double ms-2"></i>
+        </button>
+    </form>
+
+    <div class="resend-text">
+        <p class="text-muted">Vous n'avez pas reçu le code ? <br>
+           <a href="#">Renvoyer un nouveau code</a>
+        </p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

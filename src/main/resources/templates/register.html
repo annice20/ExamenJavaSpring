@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion | Mon App</title>
+    <title>Inscription | Mon App</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         body {
-            /* Dégradé moderne en arrière-plan */
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             height: 100vh;
             display: flex;
@@ -19,23 +18,23 @@
             margin: 0;
         }
 
-        .login-card {
+        .register-card {
             background: rgba(255, 255, 255, 0.95);
             padding: 2.5rem;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .login-header {
+        .register-header {
             text-align: center;
             margin-bottom: 2rem;
         }
 
-        .login-header .icon-box {
-            background: #764ba2;
+        .register-header .icon-box {
+            background: #667eea;
             width: 70px;
             height: 70px;
             border-radius: 50%;
@@ -45,10 +44,9 @@
             margin: 0 auto 15px;
             color: white;
             font-size: 2rem;
-            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
-        /* Styling des champs de saisie avec icônes */
         .input-group-custom {
             position: relative;
             margin-bottom: 1.25rem;
@@ -59,7 +57,7 @@
             left: 18px;
             top: 50%;
             transform: translateY(-50%);
-            color: #764ba2;
+            color: #667eea;
             z-index: 10;
         }
 
@@ -72,13 +70,12 @@
         }
 
         .form-control-custom:focus {
-            box-shadow: 0 0 0 0.25rem rgba(118, 75, 162, 0.15);
-            border-color: #764ba2;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
             background-color: #fff;
         }
 
-        /* Bouton avec dégradé */
-        .btn-login {
+        .btn-register {
             background: linear-gradient(to right, #667eea, #764ba2);
             border: none;
             border-radius: 50px;
@@ -90,47 +87,46 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .btn-login:hover {
+        .btn-register:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
             color: white;
         }
 
-        .register-link {
+        .login-link {
             text-align: center;
             margin-top: 1.5rem;
         }
 
-        .register-link a {
+        .login-link a {
             color: #764ba2;
             text-decoration: none;
             font-weight: 600;
         }
 
-        .register-link a:hover {
+        .login-link a:hover {
             text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-<div class="login-card">
-    <div class="login-header">
+<div class="register-card">
+    <div class="register-header">
         <div class="icon-box">
-            <i class="fas fa-lock"></i>
+            <i class="fas fa-user-plus"></i>
         </div>
-        <h2 class="fw-bold">Connexion</h2>
-        <p class="text-muted">Heureux de vous revoir !</p>
+        <h2 class="fw-bold">Inscription</h2>
+        <p class="text-muted">Créez votre compte en quelques secondes</p>
     </div>
 
-    <div th:if="${error}" class="alert alert-danger border-0 shadow-sm py-2 mb-3" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i> <small th:text="${error}"></small>
-    </div>
-    <div th:if="${message}" class="alert alert-success border-0 shadow-sm py-2 mb-3" role="alert">
-        <i class="fas fa-check-circle me-2"></i> <small th:text="${message}"></small>
-    </div>
+    <form method="post" th:action="@{/register}">
+        <div class="input-group-custom">
+            <i class="fas fa-user"></i>
+            <input type="text" name="username" class="form-control form-control-custom" 
+                   placeholder="Nom d'utilisateur" required>
+        </div>
 
-    <form method="post" th:action="@{/login}">
         <div class="input-group-custom">
             <i class="fas fa-envelope"></i>
             <input type="email" name="email" class="form-control form-control-custom" 
@@ -138,19 +134,19 @@
         </div>
 
         <div class="input-group-custom">
-            <i class="fas fa-key"></i>
+            <i class="fas fa-lock"></i>
             <input type="password" name="password" class="form-control form-control-custom" 
                    placeholder="Mot de passe" required>
         </div>
 
-        <button type="submit" class="btn btn-login w-100 mt-3">
-            Se connecter <i class="fas fa-arrow-right ms-2"></i>
+        <button type="submit" class="btn btn-register w-100 mt-3">
+            Créer mon compte <i class="fas fa-rocket ms-2"></i>
         </button>
     </form>
 
-    <div class="register-link">
-        <span class="text-muted small">Nouveau ici ?</span>
-        <a href="/register">Créer un compte</a>
+    <div class="login-link">
+        <span class="text-muted small">Déjà inscrit ?</span>
+        <a href="/login">Se connecter</a>
     </div>
 </div>
 
