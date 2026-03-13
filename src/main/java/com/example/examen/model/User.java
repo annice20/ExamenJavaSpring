@@ -2,12 +2,7 @@ package com.example.examen.model;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="users")
@@ -22,6 +17,8 @@ public class User {
 
 	private String email;
 	private String password;
+	@Enumerated(EnumType.STRING)
+    private Role role;
 
 	private String otp;
 	private LocalDateTime otpExpiration;
