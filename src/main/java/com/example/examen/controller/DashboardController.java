@@ -1,14 +1,11 @@
 package com.example.examen.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.example.examen.service.DashboardService;
 
-@RestController
+@Controller
 public class DashboardController {
 
     private final DashboardService dashboardService;
@@ -17,15 +14,20 @@ public class DashboardController {
         this.dashboardService = dashboardService;
     }
 
-    @GetMapping("/api/dashboard")
-    public Map<String, Object> statistiques() {
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
 
-        Map<String, Object> stats = new HashMap<>();
+        model.addAttribute("totalCitoyens", dashboardService.totalCitoyens());
+        model.addAttribute("cartes", dashboardService.cartesDelivrees());
+        model.addAttribute("attente", dashboardService.demandesEnAttente());
+        model.addAttribute("validees", dashboardService.demandesValidees());
 
-        stats.put("totalCitoyens", dashboardService.totalCitoyens());
-        stats.put("totalDemandes", dashboardService.totalDemandes());
-        stats.put("demandesEnAttente", dashboardService.demandesEnAttente());
+        model.addAttribute("stats", dashboardService.statsParStatut());
+        model.addAttribute("mensuel", dashboardService.statsMensuelles());
+        model.addAttribute("regions", dashboardService.statsParRegion());
 
-        return stats;
+        model.addAttribute("retard", dashboardService.dossiersEnRetard());
+
+        return "admin/dashboard";
     }
 }

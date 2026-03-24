@@ -3,6 +3,8 @@ package com.example.examen.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 
 @Entity
 @Table(name = "citoyens")
@@ -18,9 +20,12 @@ public class Citoyen {
 
     private String prenom;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateNaissance;
 
     private String lieuNaissance;
+    
+    private String region;
 
     private String sexe;
 
@@ -76,6 +81,14 @@ public class Citoyen {
 
 	public void setLieuNaissance(String lieuNaissance) {
 		this.lieuNaissance = lieuNaissance;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 	public String getSexe() {
