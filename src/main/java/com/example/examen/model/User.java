@@ -24,6 +24,9 @@ public class User {
 	private LocalDateTime otpExpiration;
 
 	private boolean enabled;
+	
+	private String secret2FA;
+    private boolean twoFactorEnabled;
 
 	public Long getId() {
 		return id;
@@ -57,6 +60,14 @@ public class User {
 		this.password = password;
 	}
 
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
 	public String getOtp() {
 		return otp;
 	}
@@ -79,5 +90,21 @@ public class User {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public String getSecret2FA() {
+		return secret2FA;
+	}
+
+	public void setSecret2FA(String secret2fa) {
+		secret2FA = secret2fa;
+	}
+
+	public boolean isTwoFactorEnabled() {
+		return twoFactorEnabled;
+	}
+
+	public void setTwoFactorEnabled(boolean twoFactorEnabled) {
+		this.twoFactorEnabled = twoFactorEnabled;
 	}
 }

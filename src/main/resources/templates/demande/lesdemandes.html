@@ -66,7 +66,7 @@
           >
         </li>
         <li class="nav-item">
-          <a href="/logout" class="nav-link"
+          <a href="index.html" class="nav-link"
             ><i class="fas fa-sign-out-alt me-2"></i> Déconnexion</a
           >
         </li>
@@ -107,7 +107,7 @@
           <div
             class="card-header bg-white d-flex justify-content-between align-items-center"
           >
-            <h6 class="mb-0">Liste des clients</h6>
+            <h6 class="mb-0">Liste des demandes</h6>
             <input
               type="text"
               class="form-control form-control-sm w-25"
@@ -115,41 +115,38 @@
             />
           </div>
           <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-					<th>Photo</th>
-                    <th>Numéro national</th>
-                    <th>Nom</th>
-                    <th>Adresse</th>
-                    <th>Sexe</th>
-                    <th>Date de naissance</th>
-					<th>Action</th>
-                </tr>
-              </thead>
-			  <tbody>
-			      <tr th:each="citoyen : ${citoyens}">
-					<td>
-					    <img th:if="${citoyen.photo != null and citoyen.photo != ''}"
-					         th:src="@{'/uploads/' + ${citoyen.photo}}"
-					         style="width:50px; height:50px; border-radius:50%; object-fit:cover;" />
-					    <i th:unless="${citoyen.photo != null and citoyen.photo != ''}"
-					       class="fas fa-user-circle fa-2x text-secondary"></i>
-					  </td>
-			          <td th:text="${citoyen.numeroNational}"></td>
-			          <td th:text="${citoyen.nom + ' ' + citoyen.prenom}"></td>
-			          <td th:text="${citoyen.adresse}"></td>
-			          <td th:text="${citoyen.sexe}"></td>
-			          <td th:text="${citoyen.dateNaissance}"></td>
-					  <td>
-					    <a th:href="@{'/demandes/creerdemande/' + ${citoyen.id}}"
-					       class="btn btn-primary btn-sm">
-					      <i class="fas fa-file-alt"></i> Demande
-					    </a>
-					  </td>
-			      </tr>
-			  </tbody>
-            </table>
+			<table class="table table-hover">
+			      <thead>
+			        <tr>
+			          <th>Dossier</th>
+			          <th>Type</th>
+			          <th>Date</th>
+			          <th>Statut</th>
+			          <th>Agent</th>
+			          <th>Actions</th>
+			        </tr>
+			      </thead>
+
+			      <tbody>
+			        <tr th:each="d : ${demandes}">
+			          <td th:text="${d.numeroDossier}"></td>
+			          <td th:text="${d.type}"></td>
+			          <td th:text="${d.dateDepot}"></td>
+			          <td>
+			            <span class="badge bg-warning" th:text="${d.statut}"></span>
+			          </td>
+			          <td th:text="${d.agentResponsable.username}"></td>
+
+			          <td>
+			            <a th:href="@{'/demandes/statut/' + ${d.id} + '/VALIDEE'}"
+			               class="btn btn-success btn-sm">Valider</a>
+
+			            <a th:href="@{'/demandes/statut/' + ${d.id} + '/REJETEE'}"
+			               class="btn btn-danger btn-sm">Rejeter</a>
+			          </td>
+			        </tr>
+			      </tbody>
+			    </table>
           </div>
           <div class="card-footer bg-white">
             <nav>
@@ -172,23 +169,5 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      const ctx = document.getElementById("myChart").getContext("2d");
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin"],
-          datasets: [
-            {
-              label: "Ventes 2026",
-              data: [12, 19, 3, 5, 2, 3],
-              borderColor: "#4e73df",
-              tension: 0.3,
-            },
-          ],
-        },
-      });
-    </script>
   </body>
 </html>

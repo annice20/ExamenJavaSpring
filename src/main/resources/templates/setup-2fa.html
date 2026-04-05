@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuration 2FA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100" 
+      style="background: linear-gradient(135deg, #667eea, #764ba2);">
+
+	<div class="card p-4 text-center" style="border-radius:20px; max-width:400px;">
+	    
+	    <h3 class="mb-3">Scanner le QR Code</h3>
+	
+	    <!-- QR CODE -->
+	    <div class="mb-3">
+	        <img th:src="${qrUri}" alt="QR Code" class="img-fluid"/>
+	    </div>
+	
+	    <p class="text-muted">
+	        Scannez avec Google Authenticator
+	    </p>
+	
+	    <!-- clé secrète (optionnel mais utile) -->
+	    <p><strong th:text="${secret}"></strong></p>
+	
+	    <form method="post" th:action="@{/setup-2fa}">
+	        <input type="text" name="code" class="form-control mb-3" placeholder="Code à 6 chiffres" required>
+	        <button class="btn btn-primary w-100">Valider</button>
+	    </form>
+	
+	    <div th:if="${error}" class="alert alert-danger mt-2" th:text="${error}"></div>
+	
+	</div>
+
+</body>
+</html>

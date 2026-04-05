@@ -1,5 +1,6 @@
 package com.example.examen.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -10,14 +11,16 @@ import com.example.examen.repository.DemandeRepository;
 
 @Service
 public class DemandeService {
-	
-	private final DemandeRepository demandeRepository;
+
+    private final DemandeRepository demandeRepository;
 
     public DemandeService(DemandeRepository demandeRepository) {
         this.demandeRepository = demandeRepository;
     }
 
     public Demande creerDemande(Demande demande) {
+        demande.setDateDepot(LocalDateTime.now());
+        demande.setStatut(StatutDemande.EN_ATTENTE);
         return demandeRepository.save(demande);
     }
 
@@ -26,12 +29,10 @@ public class DemandeService {
     }
 
     public Demande modifierStatut(Long id, StatutDemande statut) {
-
-        Demande demande = demandeRepository.findById(id).orElseThrow();
+        Demande demande = demandeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Demande introuvable"));
 
         demande.setStatut(statut);
-
         return demandeRepository.save(demande);
     }
-
 }

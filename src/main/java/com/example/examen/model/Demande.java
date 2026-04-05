@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 
 @Entity
 public class Demande {
-	
-	@Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -16,6 +16,9 @@ public class Demande {
 
     @Enumerated(EnumType.STRING)
     private StatutDemande statut;
+
+    @Enumerated(EnumType.STRING)
+    private TypeDemande type;
 
     @ManyToOne
     private Citoyen citoyen;
@@ -55,6 +58,14 @@ public class Demande {
 		this.statut = statut;
 	}
 
+	public TypeDemande getType() {
+		return type;
+	}
+
+	public void setType(TypeDemande type) {
+		this.type = type;
+	}
+
 	public Citoyen getCitoyen() {
 		return citoyen;
 	}
@@ -70,5 +81,4 @@ public class Demande {
 	public void setAgentResponsable(User agentResponsable) {
 		this.agentResponsable = agentResponsable;
 	}
-
 }

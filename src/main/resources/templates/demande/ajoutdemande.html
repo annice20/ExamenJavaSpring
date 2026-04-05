@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Accueil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root { --sidebar-width: 250px; }
+        body { background-color: #f8f9fa; }
+        #sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background: #212529;
+            transition: all 0.3s;
+        }
+        #sidebar .nav-link {
+            color: #adb5bd;
+            margin: 5px 15px;
+            border-radius: 5px;
+        }
+        #sidebar .nav-link:hover,
+        #sidebar .nav-link.active {
+            background: #343a40;
+            color: #fff;
+        }
+        #content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+        }
+        .stat-card { border: none; border-left: 5px solid #4e73df; }
+        .container { margin: auto; margin-top: 50px; }
+        .card { padding: 30px; }
+
+        .photo-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            margin-bottom: 24px;
+        }
+        .photo-upload-wrapper:hover { border-color: #0d6efd; background: #eef3ff; }
+        .photo-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid #dee2e6;
+        }
+        .photo-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .photo-avatar i { font-size: 2rem; color: #adb5bd; }
+        .photo-upload-info small { color: #6c757d; display: block; margin-top: 4px; }
+        #photoInput { display: none; }
+        .alert-float {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 280px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar" class="d-none d-md-block">
+        <div class="p-3 text-white text-center"><h5>ADMIN PANEL</h5></div>
+        <hr class="text-secondary" />
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#form-section" class="nav-link">
+                    <i class="fas fa-edit me-2"></i> Formulaires
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#table-section" class="nav-link">
+                    <i class="fas fa-table me-2"></i> Données
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="content">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm p-3 mb-4">
+            <div class="container-fluid">
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Admin User <i class="fas fa-user-circle"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#">Profil</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item" href="#">Déconnexion</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="card shadow-sm">
+                <h6 class="mb-4">
+                    <i class="fas fa-user-plus me-2 text-success"></i>Nouveau Citoyen
+                </h6>
+
+				<form th:action="@{/demandes/create}" method="post" th:object="${demande}">
+				    <input type="hidden" th:field="*{citoyen.id}" />
+
+				    <div class="mb-3">
+				        <label>Numéro dossier</label>
+				        <input type="text" th:field="*{numeroDossier}" class="form-control" required />
+				    </div>
+
+				    <div class="mb-3">
+				        <label>Type de demande</label>
+				        <select th:field="*{type}" class="form-control">
+				            <option th:each="t : ${types}"
+				                    th:value="${t}"
+				                    th:text="${t}">
+				            </option>
+				        </select>
+				    </div>
+
+				    <button class="btn btn-success">Enregistrer</button>
+				    <a href="/" class="btn btn-secondary">Annuler</a>
+				 </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-danger alert-float shadow" id="alertBox" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i><span id="alertMsg"></span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

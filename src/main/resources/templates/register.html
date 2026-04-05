@@ -138,6 +138,16 @@
             <input type="password" name="password" class="form-control form-control-custom" 
                    placeholder="Mot de passe" required>
         </div>
+		
+		<div class="input-group-custom">
+		    <select name="role" class="form-control select-custom" required>
+		        <option value="" disabled selected><i class="fas fa-user-tag"></i> Choisir un rôle</option>
+		        <option value="ADMINISTRATEUR">Administrateur</option>
+		        <option value="AGENT_ENREGISTREMENT">Agent d'enregistrement</option>
+		        <option value="AGENT_VALIDATION">Agent de validation</option>
+		        <option value="SUPERVISEUR">Superviseur</option>
+		    </select>
+		 </div>
 
         <button type="submit" class="btn btn-register w-100 mt-3">
             Créer mon compte <i class="fas fa-rocket ms-2"></i>
