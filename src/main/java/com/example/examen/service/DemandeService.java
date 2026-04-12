@@ -35,4 +35,13 @@ public class DemandeService {
         demande.setStatut(statut);
         return demandeRepository.save(demande);
     }
+    
+    public void save(Demande demande) {
+        demandeRepository.save(demande);
+    }
+
+    public Demande getById(Long id) {
+        return demandeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Demande introuvable"));
+    }
 }

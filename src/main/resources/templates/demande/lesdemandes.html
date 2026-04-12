@@ -46,61 +46,55 @@
     </style>
   </head>
   <body>
-    <nav id="sidebar" class="d-none d-md-block">
-      <div class="p-3 text-white text-center"><h5>ADMIN PANEL</h5></div>
-      <hr class="text-secondary" />
-      <ul class="nav flex-column">
-        <li class="nav-item">
-          <a href="#" class="nav-link active"
-            ><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a
-          >
-        </li>
-        <li class="nav-item">
-          <a href="#form-section" class="nav-link"
-            ><i class="fas fa-edit me-2"></i> Formulaires</a
-          >
-        </li>
-        <li class="nav-item">
-          <a href="#table-section" class="nav-link"
-            ><i class="fas fa-table me-2"></i> Données</a
-          >
-        </li>
-        <li class="nav-item">
-          <a href="index.html" class="nav-link"
-            ><i class="fas fa-sign-out-alt me-2"></i> Déconnexion</a
-          >
-        </li>
-      </ul>
-    </nav>
+	<nav id="sidebar" class="d-none d-md-block">
+	        <div class="p-3 text-white text-center"><h5>ADMIN PANEL</h5></div>
+	        <hr class="text-secondary" />
+	        <ul class="nav flex-column">
+	            <li class="nav-item">
+	                <a href="/dashboard" class="nav-link active"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+	            </li>
+	            <li class="nav-item">
+	                <a href="/citoyens/liste" class="nav-link"><i class="fas fa-edit me-2"></i> Citoyens</a>
+	            </li>
+				<li class="nav-item">
+				    <a href="/demandes/listedemande" class="nav-link"><i class="fas fa-edit me-2"></i> Citoyens</a>
+				</li>
+	            
+	            <li class="nav-item dropdown px-3">
+	                <a class="nav-link dropdown-toggle position-relative" href="#" id="notifDrop" role="button" data-bs-toggle="dropdown">
+	                    <i class="fas fa-bell me-2"></i> Notifications
+	                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+	                          th:if="${notifications != null and !notifications.isEmpty()}"
+	                          th:text="${notifications.size()}">
+	                    </span>
+	                </a>
+	                <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="notifDrop" style="width: 250px; max-height: 300px; overflow-y: auto;">
+	                    <li th:if="${notifications == null or notifications.isEmpty()}" class="p-2 text-center small text-muted">
+	                        Aucune notification
+	                    </li>
+	                    <li th:each="n : ${notifications}">
+	                        <div class="dropdown-item border-bottom border-secondary py-2" style="white-space: normal;">
+	                            <div class="small fw-bold" th:text="${n.message}"></div>
+	                            <small class="text-muted" th:text="${#temporals.format(n.date, 'dd/MM/yyyy HH:mm')}"></small>
+	                        </div>
+	                    </li>
+	                </ul>
+	            </li>
+	        </ul>
+	    </nav>
 
     <div id="content">
-      <nav
-        class="navbar navbar-expand-lg navbar-light bg-white shadow-sm p-3 mb-4"
-      >
-        <div class="container-fluid">
-          <form class="d-flex w-50">
-            <input
-              class="form-control me-2"
-              type="search"
-              placeholder="Rechercher..."
-            />
-          </form>
-          <div class="dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              role="button"
-              data-bs-toggle="dropdown"
-              >Admin User <i class="fas fa-user-circle"></i
-            ></a>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="#">Profil</a></li>
-              <li><hr class="dropdown-divider" /></li>
-              <li><a class="dropdown-item" href="#">Déconnexion</a></li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+		<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm p-3 mb-4">
+		            <div class="container-fluid">
+		                <form class="d-flex w-50"><input class="form-control me-2" type="search" placeholder="Rechercher..." /></form>
+		                <div class="dropdown">
+		                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Admin User <i class="fas fa-user-circle"></i></a>
+		                    <ul class="dropdown-menu dropdown-menu-end">
+		                        <li><a class="dropdown-item" href="/logout">Déconnexion</a></li>
+		                    </ul>
+		                </div>
+		            </div>
+		        </nav>
 
       <div class="container-fluid px-4">
         <div class="card shadow-sm" id="table-section">
@@ -114,6 +108,13 @@
               placeholder="Filtrer..."
             />
           </div>
+		  <div th:if="${success}" class="alert alert-success">
+		    <span th:text="${success}"></span>
+		  </div>
+
+		  <div th:if="${error}" class="alert alert-danger">
+		    <span th:text="${error}"></span>
+		  </div>
           <div class="table-responsive">
 			<table class="table table-hover">
 			      <thead>
@@ -137,13 +138,29 @@
 			          </td>
 			          <td th:text="${d.agentResponsable.username}"></td>
 
-			          <td>
-			            <a th:href="@{'/demandes/statut/' + ${d.id} + '/VALIDEE'}"
-			               class="btn btn-success btn-sm">Valider</a>
+					  <td>
+					    <!-- SI EN ATTENTE -->
+					    <div th:if="${d.statut.name() == 'EN_ATTENTE'}">
+					      <a th:href="@{'/demandes/statut/' + ${d.id} + '/VALIDEE'}"
+					         class="btn btn-success btn-sm">Valider</a>
 
-			            <a th:href="@{'/demandes/statut/' + ${d.id} + '/REJETEE'}"
-			               class="btn btn-danger btn-sm">Rejeter</a>
-			          </td>
+					      <a th:href="@{'/demandes/statut/' + ${d.id} + '/REJETEE'}"
+					         class="btn btn-danger btn-sm">Rejeter</a>
+					    </div>
+
+					    <!-- SI VALIDÉ -->
+					    <span th:if="${d.statut.name() == 'VALIDEE'}"
+					          class="badge bg-success">
+					          ✔ Validée
+					    </span>
+
+					    <!-- SI REJETÉ -->
+					    <span th:if="${d.statut.name() == 'REJETEE'}"
+					          class="badge bg-danger">
+					          ✖ Rejetée
+					    </span>
+
+					  </td>
 			        </tr>
 			      </tbody>
 			    </table>

@@ -5,19 +5,28 @@ import java.nio.file.*;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.examen.model.Citoyen;
+import com.example.examen.model.User;
 import com.example.examen.service.CitoyenService;
+import com.example.examen.service.NotificationService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/citoyens")
 public class CitoyenController {
 
+	@Autowired
     private final CitoyenService citoyenService;
+	
+    @Autowired
+    private NotificationService notificationService;
 
     public CitoyenController(CitoyenService citoyenService) {
         this.citoyenService = citoyenService;
@@ -26,7 +35,16 @@ public class CitoyenController {
     
     @GetMapping("/liste")
     public String listeCitoyens(Model model) {
+        // On récupère la liste des citoyens
         model.addAttribute("citoyens", citoyenService.obtenirTousCitoyens());
+
+        // On simule l'utilisateur connecté (ID 1 selon votre base MariaDB)
+        User currentUser = new User();
+        currentUser.setId(1L);
+
+        // On envoie les notifications au modèle
+        model.addAttribute("notifications", notificationService.getUserNotifications(currentUser));
+
         return "citoyens/lesCitoyens";
     }
 
@@ -47,11 +65,11 @@ public class CitoyenController {
             @RequestParam(value = "lieuNaissance", required = false) String lieuNaissance,
             @RequestParam(value = "profession", required = false) String profession,
             @RequestParam(value = "adresse", required = false) String adresse,
-            @RequestParam(value = "photo", required = false) MultipartFile photo) {
-
-        System.out.println("=== OK CONTROLLER ===");
+            @RequestParam(value = "photo", required = false) MultipartFile photo,
+            HttpSession session) {
 
         Citoyen citoyen = new Citoyen();
+
         citoyen.setNom(nom);
         citoyen.setPrenom(prenom);
         citoyen.setNumeroNational(numeroNational);
@@ -60,12 +78,20 @@ public class CitoyenController {
         citoyen.setProfession(profession);
         citoyen.setAdresse(adresse);
 
-        // Conversion date
         if (dateNaissance != null && !dateNaissance.isEmpty()) {
             citoyen.setDateNaissance(java.time.LocalDate.parse(dateNaissance));
         }
 
-        // Upload image
+        // LIER USER CONNECTÉ
+        Long userId = (Long) session.getAttribute("userId");
+
+        if (userId != null) {
+            User user = new User();
+            user.setId(userId);
+            citoyen.setUser(user);
+        }
+
+        // Upload image (inchangé)
         if (photo != null && !photo.isEmpty()) {
             try {
                 String uploadDir = System.getProperty("user.dir") + "/uploads";
@@ -81,8 +107,6 @@ public class CitoyenController {
                 Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
                 citoyen.setPhoto(filename);
-
-                System.out.println("UPLOAD OK");
 
             } catch (IOException e) {
                 e.printStackTrace();

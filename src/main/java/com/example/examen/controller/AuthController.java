@@ -145,6 +145,7 @@ public class AuthController {
         // Sinon → login normal
         session.setAttribute("username", user.getUsername());
         session.setAttribute("role", user.getRole());
+        session.setAttribute("userId", user.getId());
 
         return switch (user.getRole()) {
             case ADMINISTRATEUR, SUPERVISEUR -> "redirect:/dashboard";
@@ -269,6 +270,7 @@ public class AuthController {
         session.removeAttribute("pending2faEmail");
         session.setAttribute("username", user.getUsername());
         session.setAttribute("role", user.getRole());
+        session.setAttribute("userId", user.getId());
 
         // Redirection par rôle
         return switch (user.getRole()) {

@@ -34,6 +34,10 @@ public class Citoyen {
     private String profession;
 
     private String photo;
+    
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 	public Long getId() {
 		return id;
@@ -121,5 +125,13 @@ public class Citoyen {
 
 	public void setPhoto(String photo) {
 		this.photo = photo;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 }
