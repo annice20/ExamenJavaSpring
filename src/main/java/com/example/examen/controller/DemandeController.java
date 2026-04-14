@@ -7,6 +7,8 @@ import com.example.examen.service.NotificationService;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +30,17 @@ public class DemandeController {
 
     // Liste
     @GetMapping("/listedemande")
-    public String liste(Model model) {
-        model.addAttribute("demandes", demandeService.obtenirDemandes());
+    public String liste(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
+        List<Demande> demandes;
+        
+        if (keyword != null && !keyword.isEmpty()) {
+            demandes = demandeService.chercherDemandes(keyword);
+            model.addAttribute("keyword", keyword);
+        } else {
+            demandes = demandeService.obtenirDemandes();
+        }
+        
+        model.addAttribute("demandes", demandes);
         model.addAttribute("types", TypeDemande.values());
         return "demande/lesdemandes";
     }

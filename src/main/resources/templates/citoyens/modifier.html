@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Modifier Citoyen - E-CIN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root { --sidebar-width: 250px; }
+        body { background-color: #f8f9fa; }
+        #sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background: #212529;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        #sidebar .nav-link {
+            color: #adb5bd;
+            margin: 5px 15px;
+            border-radius: 5px;
+        }
+        #sidebar .nav-link:hover,
+        #sidebar .nav-link.active {
+            background: #343a40;
+            color: #fff;
+        }
+        #content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+        }
+        
+        /* Styles du formulaire d'ajout repris ici */
+        .card { padding: 30px; border: none; }
+        .container { margin: auto; margin-top: 20px; max-width: 900px; }
+
+        .photo-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            margin-bottom: 24px;
+        }
+        .photo-upload-wrapper:hover { border-color: #0d6efd; background: #eef3ff; }
+        .photo-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid #dee2e6;
+        }
+        .photo-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-avatar i { font-size: 2rem; color: #adb5bd; }
+        .photo-upload-info small { color: #6c757d; display: block; margin-top: 4px; }
+        #photoInput { display: none; }
+        
+        .alert-float {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 280px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar" class="d-none d-md-block">
+        <div class="p-3 text-white text-center"><h5>E-CIN</h5></div>
+        <hr class="text-secondary" />
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="/dashboard" class="nav-link"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a href="/citoyens/liste" class="nav-link active"><i class="fas fa-edit me-2"></i> Citoyens</a>
+            </li>
+            <li class="nav-item">
+                <a href="/demandes/listedemande" class="nav-link"><i class="fas fa-file-alt me-2"></i> Demandes</a>
+            </li>
+            </ul>
+    </nav>
+
+    <div id="content">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm p-3 mb-4">
+            <div class="container-fluid">
+                <form class="d-flex w-50"><input class="form-control me-2" type="search" placeholder="Rechercher..." /></form>
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Admin User <i class="fas fa-user-circle"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/logout">Déconnexion</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid px-4">
+            <div class="card shadow-sm">
+                <h6 class="mb-4">
+                    <i class="fas fa-user-edit me-2 text-warning"></i>Modifier le Citoyen
+                </h6>
+
+                <form th:action="@{'/citoyens/update/' + ${citoyen.id}}" 
+                      th:object="${citoyen}" 
+                      method="post" 
+                      enctype="multipart/form-data">
+                    
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div class="photo-upload-wrapper" id="photoZone">
+                        <div class="photo-avatar" id="photoAvatar">
+                            <img id="previewImg" 
+                                 th:src="*{photo != null and photo != ''} ? @{'/uploads/' + *{photo}} : ''" 
+                                 th:style="*{photo != null and photo != ''} ? 'display:block;' : 'display:none;'"
+                                 alt="Photo citoyen" />
+                            <i class="fas fa-user" th:style="*{photo != null and photo != ''} ? 'display:none;' : ''"></i>
+                        </div>
+                        <div class="photo-upload-info">
+                            <strong>Photo du citoyen</strong>
+                            <small>Cliquez pour changer l'image (JPG, PNG — max 5 Mo)</small>
+                            <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="choosePhotoBtn">
+                                <i class="fas fa-upload me-1"></i> Choisir une nouvelle photo
+                            </button>
+                        </div>
+                        <input type="file" id="photoInput" name="photoFile" accept="image/*" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nom <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{nom}" class="form-control" placeholder="Ex : Rakoto" required />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{prenom}" class="form-control" placeholder="Ex : Jean" required />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Numéro National <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{numeroNational}" class="form-control" placeholder="Ex : CIN-000123456" required />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Sexe</label>
+                            <select th:field="*{sexe}" class="form-select">
+                                <option value="">— Sélectionner —</option>
+                                <option value="M">Masculin</option>
+                                <option value="F">Féminin</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date de Naissance</label>
+                            <input type="date" th:field="*{dateNaissance}" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Lieu de Naissance</label>
+                            <input type="text" th:field="*{lieuNaissance}" class="form-control" placeholder="Ex : Antananarivo" />
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Région</label>
+                            <input type="text" th:field="*{region}" class="form-control" placeholder="Ex : Analamanga" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Profession</label>
+                            <input type="text" th:field="*{profession}" class="form-control" placeholder="Ex : Ingénieur" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Adresse</label>
+                            <input type="text" th:field="*{adresse}" class="form-control" placeholder="Rue, quartier, ville…" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-warning flex-grow-1 text-white">
+                            <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                        </button>
+                        <a href="/citoyens/liste" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-danger alert-float shadow" id="alertBox" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i><span id="alertMsg"></span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const photoInput  = document.getElementById('photoInput');
+        const previewImg  = document.getElementById('previewImg');
+        const photoAvatar = document.getElementById('photoAvatar');
+        const photoZone   = document.getElementById('photoZone');
+        const chooseBtn   = document.getElementById('choosePhotoBtn');
+        const avatarIcon  = photoAvatar.querySelector('i');
+
+        // Au chargement, on vérifie si une image est déjà affichée
+        window.addEventListener('load', () => {
+            if (previewImg.src && previewImg.style.display === 'block') {
+                avatarIcon.style.display = 'none';
+                photoZone.style.borderColor = '#ffc107'; // Couleur warning pour modification
+            }
+        });
+
+        chooseBtn.addEventListener('click', () => photoInput.click());
+        photoZone.addEventListener('click', e => {
+            // Clique sur la zone mais pas sur le bouton (qui a déjà son handler)
+            if (e.target !== chooseBtn && !chooseBtn.contains(e.target)) {
+                photoInput.click();
+            }
+        });
+
+        photoInput.addEventListener('change', () => {
+            const file = photoInput.files[0];
+            if (!file) return;
+            
+            // Validation taille (5 Mo)
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('Image trop lourde. Taille maximale : 5 Mo.');
+                photoInput.value = '';
+                // On remet l'ancienne image si elle existait
+                if(!previewImg.src || previewImg.src === window.location.href) {
+                     previewImg.style.display = 'none';
+                     avatarIcon.style.display = 'block';
+                }
+                return;
+            }
+            
+            // Lecture et aperçu
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                avatarIcon.style.display = 'none';
+                photoZone.style.borderColor = '#0d6efd';
+                photoZone.style.background = '#eef3ff';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function showAlert(msg) {
+            const box = document.getElementById('alertBox');
+            document.getElementById('alertMsg').textContent = msg;
+            box.style.display = 'block';
+            setTimeout(() => box.style.display = 'none', 4000);
+        }
+    </script>
+</body>
+</html>

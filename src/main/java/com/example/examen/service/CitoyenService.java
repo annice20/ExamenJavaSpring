@@ -42,6 +42,13 @@ public class CitoyenService {
     public void supprimerCitoyen(Long id) {
         citoyenRepository.deleteById(id);
     }
+    
+    public List<Citoyen> chercherCitoyens(String motCle) {
+        if (motCle != null && !motCle.trim().isEmpty()) {
+            return citoyenRepository.searchCitoyens(motCle);
+        }
+        return citoyenRepository.findAll();
+    }
 
 
 }

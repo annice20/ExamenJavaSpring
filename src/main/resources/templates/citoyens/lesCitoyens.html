@@ -14,6 +14,8 @@
         #content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); }
         .dropdown-menu-dark .dropdown-item { color: #adb5bd; }
         .dropdown-menu-dark .dropdown-item:hover { background: #495057; color: white; }
+		.table-responsive { overflow: visible !important; }
+		.ajout { width: 160px; padding: 15px; margin-top: 1rem; margin-bottom: 1rem; margin-left: 1rem;}
     </style>
 </head>
 <body>
@@ -58,7 +60,17 @@
     <div id="content">
         <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm p-3 mb-4">
             <div class="container-fluid">
-                <form class="d-flex w-50"><input class="form-control me-2" type="search" placeholder="Rechercher..." /></form>
+				<form th:action="@{/citoyens/liste}" method="get" class="d-flex w-50">
+				    <input class="form-control me-2" 
+				           type="search" 
+				           name="keyword" 
+				           th:value="${keyword}" 
+				           placeholder="Rechercher par nom, prénom ou CIN..." 
+				           aria-label="Search">
+				    <button class="btn btn-outline-primary" type="submit">
+				        <i class="fas fa-search"></i>
+				    </button>
+				</form>
                 <div class="dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Admin User <i class="fas fa-user-circle"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -73,6 +85,7 @@
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">Liste des citoyens</h6>
                 </div>
+				<a href="/citoyens/creer" class="btn btn-outline-primary ajout">Ajouter</a>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">

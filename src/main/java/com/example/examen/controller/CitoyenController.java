@@ -34,15 +34,21 @@ public class CitoyenController {
 
     
     @GetMapping("/liste")
-    public String listeCitoyens(Model model) {
-        // On récupère la liste des citoyens
-        model.addAttribute("citoyens", citoyenService.obtenirTousCitoyens());
-
-        // On simule l'utilisateur connecté (ID 1 selon votre base MariaDB)
+    public String listeCitoyens(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
+        List<Citoyen> citoyens;
+        
+        if (keyword != null) {
+            citoyens = citoyenService.chercherCitoyens(keyword);
+            model.addAttribute("keyword", keyword);
+        } else {
+            citoyens = citoyenService.obtenirTousCitoyens();
+        }
+        
+        model.addAttribute("citoyens", citoyens);
+        
+        // Pour vos notifications (simulé)
         User currentUser = new User();
         currentUser.setId(1L);
-
-        // On envoie les notifications au modèle
         model.addAttribute("notifications", notificationService.getUserNotifications(currentUser));
 
         return "citoyens/lesCitoyens";
@@ -118,22 +124,62 @@ public class CitoyenController {
         return "redirect:/citoyens/liste";
     }
     
-    // API
-    @GetMapping("/api")
-    @ResponseBody
-    public List<Citoyen> apiCitoyens() {
-        return citoyenService.obtenirTousCitoyens();
+    @GetMapping("/edit/{id}")
+    public String editerCitoyenForm(@PathVariable Long id, Model model) {
+        Citoyen citoyen = citoyenService.obtenirCitoyen(id);
+        if (citoyen == null) {
+            return "redirect:/citoyens/liste";
+        }
+        model.addAttribute("citoyen", citoyen);
+        return "citoyens/modifier";
     }
+    
+    @PostMapping("/update/{id}")
+    public String modifierCitoyen(@PathVariable Long id, 
+                                 @ModelAttribute Citoyen citoyenDetails,
+                                 @RequestParam(value = "photoFile", required = false) MultipartFile photoFile) {
+        
+        Citoyen citoyenExistant = citoyenService.obtenirCitoyen(id);
+        
+        if (citoyenExistant != null) {
+            // Mise à jour des champs texte
+            citoyenExistant.setNom(citoyenDetails.getNom());
+            citoyenExistant.setPrenom(citoyenDetails.getPrenom());
+            citoyenExistant.setNumeroNational(citoyenDetails.getNumeroNational());
+            citoyenExistant.setSexe(citoyenDetails.getSexe());
+            citoyenExistant.setAdresse(citoyenDetails.getAdresse());
 
-    @GetMapping("/{id}")
-    @ResponseBody
-    public Citoyen obtenirCitoyen(@PathVariable Long id) {
-        return citoyenService.obtenirCitoyen(id);
+            // Gestion de la nouvelle photo
+            if (photoFile != null && !photoFile.isEmpty()) {
+                try {
+                    String uploadDir = System.getProperty("user.dir") + "/uploads";
+                    Path uploadPath = Paths.get(uploadDir);
+
+                    if (!Files.exists(uploadPath)) {
+                        Files.createDirectories(uploadPath);
+                    }
+
+                    String filename = UUID.randomUUID() + "_" + photoFile.getOriginalFilename();
+                    Path filePath = uploadPath.resolve(filename);
+
+                    Files.copy(photoFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                    citoyenExistant.setPhoto(filename);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            citoyenService.creerCitoyen(citoyenExistant);
+        }
+        
+        return "redirect:/citoyens/liste";
     }
-
-    @DeleteMapping("/{id}")
-    @ResponseBody
-    public void supprimerCitoyen(@PathVariable Long id) {
+    
+    @GetMapping("/delete/{id}")
+    public String supprimerCitoyenRedirect(@PathVariable Long id) {
         citoyenService.supprimerCitoyen(id);
+        return "redirect:/citoyens/liste";
     }
 }

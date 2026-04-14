@@ -44,4 +44,11 @@ public class DemandeService {
         return demandeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Demande introuvable"));
     }
+    
+    public List<Demande> chercherDemandes(String keyword) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            return demandeRepository.searchDemandes(keyword);
+        }
+        return demandeRepository.findAll();
+    }
 }

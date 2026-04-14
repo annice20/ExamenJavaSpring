@@ -86,7 +86,20 @@
     <div id="content">
 		<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm p-3 mb-4">
 		            <div class="container-fluid">
-		                <form class="d-flex w-50"><input class="form-control me-2" type="search" placeholder="Rechercher..." /></form>
+						<form th:action="@{/demandes/listedemande}" method="get" class="w-25">
+						        <div class="input-group">
+						            <input
+						                type="text"
+						                name="keyword"
+						                th:value="${keyword}"
+						                class="form-control form-control-sm"
+						                placeholder="Dossier, Nom ou Type..."
+						            />
+						            <button class="btn btn-sm btn-primary" type="submit">
+						                <i class="fas fa-search"></i>
+						            </button>
+						        </div>
+						    </form>
 		                <div class="dropdown">
 		                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Admin User <i class="fas fa-user-circle"></i></a>
 		                    <ul class="dropdown-menu dropdown-menu-end">
@@ -139,47 +152,29 @@
 			          <td th:text="${d.agentResponsable.username}"></td>
 
 					  <td>
-					    <!-- SI EN ATTENTE -->
-					    <div th:if="${d.statut.name() == 'EN_ATTENTE'}">
-					      <a th:href="@{'/demandes/statut/' + ${d.id} + '/VALIDEE'}"
-					         class="btn btn-success btn-sm">Valider</a>
+					      <div th:if="${session.role != null and session.role.name() == 'ADMINISTRATEUR'}">
+					          
+					          <div th:if="${d.statut.name() == 'EN_ATTENTE'}">
+					              <a th:href="@{'/demandes/statut/' + ${d.id} + '/VALIDEE'}"
+					                 class="btn btn-success btn-sm">Valider</a>
 
-					      <a th:href="@{'/demandes/statut/' + ${d.id} + '/REJETEE'}"
-					         class="btn btn-danger btn-sm">Rejeter</a>
-					    </div>
+					              <a th:href="@{'/demandes/statut/' + ${d.id} + '/REJETEE'}"
+					                 class="btn btn-danger btn-sm">Rejeter</a>
+					          </div>
 
-					    <!-- SI VALIDÉ -->
-					    <span th:if="${d.statut.name() == 'VALIDEE'}"
-					          class="badge bg-success">
-					          ✔ Validée
-					    </span>
+					          <span th:if="${d.statut.name() == 'VALIDEE'}" class="badge bg-success">✔ Validée</span>
+					          <span th:if="${d.statut.name() == 'REJETEE'}" class="badge bg-danger">✖ Rejetée</span>
+					      </div>
 
-					    <!-- SI REJETÉ -->
-					    <span th:if="${d.statut.name() == 'REJETEE'}"
-					          class="badge bg-danger">
-					          ✖ Rejetée
-					    </span>
-
+					      <div th:unless="${session.role != null and session.role.name() == 'ADMINISTRATEUR'}">
+					          <span th:if="${d.statut.name() == 'EN_ATTENTE'}" class="badge bg-warning text-dark">En attente</span>
+					          <span th:if="${d.statut.name() == 'VALIDEE'}" class="badge bg-success">✔ Validée</span>
+					          <span th:if="${d.statut.name() == 'REJETEE'}" class="badge bg-danger">✖ Rejetée</span>
+					      </div>
 					  </td>
 			        </tr>
 			      </tbody>
 			    </table>
-          </div>
-          <div class="card-footer bg-white">
-            <nav>
-              <ul class="pagination pagination-sm mb-0 justify-content-end">
-                <li class="page-item disabled">
-                  <a class="page-link" href="#">Précédent</a>
-                </li>
-                <li class="page-item active">
-                  <a class="page-link" href="#">1</a>
-                </li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item">
-                  <a class="page-link" href="#">Suivant</a>
-                </li>
-              </ul>
-            </nav>
           </div>
         </div>
       </div>

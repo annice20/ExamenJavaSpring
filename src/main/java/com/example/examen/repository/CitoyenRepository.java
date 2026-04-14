@@ -14,4 +14,11 @@ public interface CitoyenRepository extends JpaRepository<Citoyen, Long> {
 	
 	@Query("SELECT c.adresse, COUNT(c) FROM Citoyen c GROUP BY c.adresse")
 	List<Object[]> countByRegionRaw();
+	
+	// Recherche par nom, prénom ou numéro national
+    @Query("SELECT c FROM Citoyen c WHERE " +
+           "LOWER(c.nom) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(c.prenom) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(c.numeroNational) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<Citoyen> searchCitoyens(String query);
 }
